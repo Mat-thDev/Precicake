@@ -1,2 +1,1 @@
-// Átomos Jotai — fase 2.
-export {};
+export * from './calculator';
