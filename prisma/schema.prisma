@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Custo por unidade de medida: precoCompra / quantidadeEmbalagem
+// Nota: SQLite não suporta anotações nativas de Decimal (precision/scale);
+// os valores são tratados como Decimal pelo Prisma Client e armazenados como NUMERIC.
+model Ingredient {
+  id                  String   @id @default(cuid())
+  nome                String
+  unidadeMedida       String // "g", "ml", "un"
+  quantidadeEmbalagem Decimal
+  precoCompra         Decimal
+  custoPorUnidade     Decimal
+  criadoEm            DateTime @default(now())
+  atualizadoEm        DateTime @updatedAt
+
+  recipeItems RecipeItem[]
+
+  @@index([nome])
+}
+
+model Recipe {
+  id           String   @id @default(cuid())
+  nome         String
+  rendimento   Decimal? // null = sem rendimento definido
+  unidadeRend  String? // "un", "g", "fatias"
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  itens RecipeItem[]
+
+  @@index([nome])
+}
+
+model RecipeItem {
+  id            String   @id @default(cuid())
+  recipeId      String
+  ingredientId  String
+  quantidade    Decimal // na unidade do ingrediente
+  custoUnitario Decimal // snapshot do custo do ingrediente no momento da vinculação
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+
+  @@unique([recipeId, ingredientId])
+  @@index([ingredientId])
+}
+
+model Setting {
+  chave String @id
+  valor String
+}
