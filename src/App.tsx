@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { ComponentType } from 'react';
-import { Navbar } from './components';
+import { Navbar, NotFound } from './components';
 import { appStateAtom } from './atoms';
 import useRouter from './hooks/useRouter';
 import useBackButton from './hooks/useBackButton';
@@ -11,6 +11,10 @@ import Home from './features/home';
 const ROUTER_MAPPING: Record<Router.Routes, ComponentType> = {
   Home,
   Welcome: WelcomePage,
+  // TODO: substituir pelo componente real de cada rota
+  Calculator: NotFound,
+  Recipes: NotFound,
+  Ingredients: NotFound,
 };
 
 export default function App() {

@@ -34,4 +34,19 @@ declare namespace UI {
     className?: string;
     alt?: string;
   }
+
+  interface NotFoundProps {
+    title?: string;
+    description?: string;
+  }
+
+  interface SkeletonPageProps {
+    /** Exibe o esqueleto do título/cabeçalho */
+    header?: boolean;
+    /** Quantidade de blocos grandes (cards) */
+    blocks?: number;
+    /** Quantidade de linhas de texto */
+    lines?: number;
+    className?: string;
+  }
 }
