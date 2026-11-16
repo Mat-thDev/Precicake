@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Precicake</string>
+    <string name="title_activity_main">Precicake</string>
+    <string name="package_name">com.precicake.app</string>
+    <string name="custom_url_scheme">com.precicake.app</string>
+</resources>

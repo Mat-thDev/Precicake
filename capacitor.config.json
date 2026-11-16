@@ -1,0 +1,15 @@
+{
+  "appId": "com.precicake.app",
+  "appName": "Precicake",
+  "webDir": "dist",
+  "server": {
+    "url": "http://192.168.0.104:5174",
+    "cleartext": true,
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "Keyboard": {
+      "resizeOnFullScreen": true
+    }
+  }
+}

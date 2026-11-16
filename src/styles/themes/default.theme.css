@@ -1,0 +1,47 @@
+@plugin "daisyui/theme" {
+  name: 'default';
+  default: true;
+  prefersdark: false;
+  color-scheme: 'light';
+
+  /* Base — branco-gelo (frio e limpo) */
+  --color-base-100: oklch(98.5% 0.008 230);
+  --color-base-200: oklch(96.5% 0.01 228);
+  --color-base-300: oklch(93% 0.014 226);
+  --color-base-content: oklch(24% 0.03 55);
+
+  /* Primária — marrom-cacau */
+  --color-primary: oklch(38% 0.075 55);
+  --color-primary-content: oklch(98% 0.008 230);
+
+  /* Secundária — marrons claros (cafe com leite / avelã) */
+  --color-secondary: oklch(62% 0.055 60);
+  --color-secondary-content: oklch(24% 0.04 55);
+
+  /* Acento — caramelizado discreto */
+  --color-accent: oklch(72% 0.08 72);
+  --color-accent-content: oklch(24% 0.045 55);
+
+  /* Neutro — cacau amargo */
+  --color-neutral: oklch(30% 0.045 55);
+  --color-neutral-content: oklch(96% 0.01 230);
+
+  --color-info: oklch(62% 0.09 235);
+  --color-info-content: oklch(98% 0.012 230);
+  --color-success: oklch(58% 0.11 150);
+  --color-success-content: oklch(98% 0.02 150);
+  --color-warning: oklch(75% 0.12 72);
+  --color-warning-content: oklch(24% 0.045 55);
+  --color-error: oklch(55% 0.17 27);
+  --color-error-content: oklch(98% 0.015 25);
+
+  /* Formas macias, tipo trufa */
+  --radius-selector: 1rem;
+  --radius-field: 1.5rem;
+  --radius-box: 1.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}

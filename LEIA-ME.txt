@@ -1,0 +1,98 @@
+PRECIFICA DOCE
+===============
+
+ESTRUTURA DA PASTA
+- www/index.html: interface completa original (calculadora com todas as
+  funcionalidades de salvamento, export/import e receitas).
+- www/ingredients.json: catálogo de ingredientes e preços (lido e gravado).
+- www/receitas.json: receitas nomeadas (criado na primeira receita salva).
+- server.cjs: servidor local (Express) que serve a pasta www e grava os JSONs.
+- index.html + src/ + vite.config.ts + tsconfig.json: NOVO app React/Vite/
+  Tailwind em andamento (título "Precifica").
+- dist/: build do novo app React (gerado por npm run build).
+- capacitor.config.json / android/: projeto do app Android (Capacitor,
+  webDir = dist, appId com.precicake.app).
+- LEIA-ME.txt: este arquivo.
+
+COMO EXECUTAR NO WINDOWS (app original, com salvamento em arquivo)
+1. Abra a pasta no Explorador de Arquivos.
+2. Na barra de endereço da pasta, digite cmd e pressione Enter.
+3. No terminal, execute:
+   npm install      (só na primeira vez)
+   npm start
+4. Abra http://localhost:8000 no navegador (serve www/ com a API de gravação).
+5. Para encerrar, volte ao terminal e pressione Ctrl+C.
+
+NOVO APP REACT/VITE (em desenvolvimento)
+- npm run dev      -> servidor de desenvolvimento em http://localhost:5173
+- npm run build    -> gera o build de produção em dist/
+- npm run preview  -> visualiza o build
+- npm run cap:sync / cap:android -> build + sincroniza com o projeto Android
+
+SALVAMENTO AUTOMÁTICO (app original via npm start)
+- Toda alteração é gravada nos arquivos:
+  * Catálogo de ingredientes -> www/ingredients.json
+  * Receitas nomeadas        -> www/receitas.json
+- O indicador no topo da página mostra o estado: "Salvo no arquivo",
+  "Salvo às 14:32", "Salvando..." ou "Modo navegador".
+- A receita em andamento (sem nome) fica guardada no navegador e é
+  restaurada ao recarregar a página.
+
+APP ANDROID (CAPACITOR)
+- O Capacitor empacota a pasta indicada em capacitor.config.json
+  (webDir = dist, ou seja, o build do app React).
+- Comandos úteis (requer Android Studio para gerar o APK):
+  npm run cap:sync      (builda e copia para o projeto Android)
+  npm run cap:android   (idem, direto para android/)
+  npx cap open android  (abre o Android Studio)
+- No app instalado no celular NÃO existe o servidor npm start, então o
+  indicador mostra "Modo navegador": os dados ficam salvos no próprio
+  aparelho e valem para uso normal.
+- Para levar dados entre o celular e o computador, use
+  "Exportar / Importar" (gera/lê um JSON).
+
+EXPORTAR / IMPORTAR (app original)
+- Botão "Exportar / Importar" no topo:
+  * Exportar ingredientes: baixa um ingredients.json atualizado.
+  * Importar ingredientes: lê um ingredients.json e MESCLA com o catálogo
+    atual (itens novos entram, existentes são atualizados; nada é apagado).
+  * Exportar receitas: baixa um receitas.json com todas as receitas salvas.
+  * Importar receitas: lê um receitas.json e mescla com as salvas.
+  * Recarregar do arquivo: descarta alterações locais e relê o arquivo.
+- No modo navegador, depois de exportar, substitua o arquivo da pasta
+  www/ pelo arquivo baixado para tornar a mudança permanente.
+
+RECEITAS NOMEADAS (app original)
+- Digite um nome na barra da receita e clique em "Salvar receita"
+  (ou pressione Enter). A receita vai para receitas.json.
+- Botão "Receitas" no topo lista as receitas salvas para carregar,
+  renomear ou excluir. Carregar restaura ingredientes e o percentual
+  de custos adicionais.
+
+COMO EDITAR OS INGREDIENTES PRÉ-PRONTOS
+Pela interface: botão "Gerenciar ingredientes" (alterações são gravadas
+automaticamente no ingredients.json quando o servidor está rodando).
+Ou abra www/ingredients.json em um editor de texto. Cada item usa:
+{
+  "id": "chocolate-meio-amargo",
+  "name": "Chocolate meio amargo",
+  "packageGrams": 1000,
+  "packagePrice": 39.90
+}
+
+packageGrams é o peso da embalagem em gramas; packagePrice é o preço da embalagem em reais.
+Os valores que vêm no catálogo são exemplos e devem ser ajustados aos preços reais da confeitaria.
+
+REGRAS DO CÁLCULO
+Custo de cada ingrediente = (preço da embalagem / peso da embalagem em gramas) x gramas utilizadas.
+Custo adicional = soma dos ingredientes x percentual configurado (inicialmente 3,5%).
+Custo total = soma dos ingredientes + custo adicional.
+Venda ×2 = custo total x 2.
+Venda ×3 = custo total x 3.
+
+SEM O SERVIDOR (fallback)
+- Sem servidor local (por exemplo, no app Android ou abrindo o HTML direto),
+  o navegador não consegue gravar arquivos por segurança.
+- Nesse caso a página funciona normalmente, as alterações ficam salvas no
+  próprio dispositivo e o indicador mostra "Modo navegador".
+- Use Exportar / Importar para levar os dados para os arquivos.
