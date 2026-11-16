@@ -1,9 +1,9 @@
 declare namespace Router {
-  type Routes = 'Home' | 'Welcome' | 'Calculator' | 'Recipes' | 'Ingredients';
+  type Routes = 'Home' | 'Welcome' | 'RecipeDetail' | 'Recipes' | 'Ingredients';
 
   interface RouteState {
     page: Routes;
-    props?: undefined;
+    props?: { recipeId?: string };
   }
 
   interface NavState {

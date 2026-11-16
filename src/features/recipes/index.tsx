@@ -1,13 +1,25 @@
 import { ChefHat, Plus } from 'lucide-react';
 import { Button } from '../../components';
+import useRouter from '../../hooks/useRouter';
 import useRecipes from '../../hooks/useRecipes';
+import { calculatePricing } from '../../lib/pricing';
 import { formatCurrency } from '../../lib/utils';
 
-const getRecipeCost = (recipe: Recipe.Item): number =>
-  recipe.ingredients.reduce((sum, ingredient) => sum + ingredient.unitCost, 0);
-
 const RecipesPage = () => {
-  const { recipes } = useRecipes();
+  const { navigate } = useRouter();
+  const { recipes, addRecipe } = useRecipes();
+
+  const createRecipe = () => {
+    const item = addRecipe({
+      name: '',
+      ingredients: [],
+      percentCost: 3.5,
+      additionalCosts: [],
+      multiplier: 3,
+    });
+
+    navigate('RecipeDetail', { recipeId: item.id });
+  };
 
   return (
     <div className="page-scroll h-full w-full px-4 py-4">
@@ -19,7 +31,7 @@ const RecipesPage = () => {
           </p>
         </div>
 
-        <Button variant="accent" size="sm" disabled title="Em breve">
+        <Button variant="accent" size="sm" onClick={createRecipe}>
           <Plus className="h-4 w-4" />
           Nova receita
         </Button>
@@ -39,29 +51,40 @@ const RecipesPage = () => {
         </div>
       ) : (
         <ul className="space-y-3">
-          {recipes.map((recipe) => (
-            <li
-              key={recipe.id}
-              className="rounded-2xl border border-base-200 bg-base-100 p-4 active:scale-[0.99]"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h3 className="truncate font-semibold">{recipe.name}</h3>
-                  <p className="mt-1 text-xs text-base-content/60">
-                    {recipe.portions} {recipe.portions === 1 ? 'porção' : 'porções'}
-                    {recipe.prepTimeMin ? ` · ${recipe.prepTimeMin} min` : ''}
-                  </p>
-                </div>
+          {recipes.map((recipe) => {
+            const pricing = calculatePricing(recipe);
 
-                <div className="shrink-0 text-right">
-                  <p className="text-[0.65rem] uppercase tracking-wide text-base-content/50">
-                    custo total
-                  </p>
-                  <p className="font-bold text-primary">{formatCurrency(getRecipeCost(recipe))}</p>
-                </div>
-              </div>
-            </li>
-          ))}
+            return (
+              <li key={recipe.id}>
+                <button
+                  type="button"
+                  className="w-full rounded-2xl border border-base-200 bg-base-100 p-4 text-left transition-transform active:scale-[0.99]"
+                  onClick={() => navigate('RecipeDetail', { recipeId: recipe.id })}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="truncate font-semibold">
+                        {recipe.name.trim() || 'Receita sem nome'}
+                      </h3>
+                      <p className="mt-1 text-xs text-base-content/60">
+                        {recipe.portions
+                          ? `${recipe.portions} ${recipe.portions === 1 ? 'porção' : 'porções'}`
+                          : 'sem rendimento'}
+                        {recipe.prepTimeMin ? ` · ${recipe.prepTimeMin} min` : ''}
+                      </p>
+                    </div>
+
+                    <div className="shrink-0 text-right">
+                      <p className="text-[0.65rem] uppercase tracking-wide text-base-content/50">
+                        venda ×{recipe.multiplier}
+                      </p>
+                      <p className="font-bold text-primary">{formatCurrency(pricing.salePrice)}</p>
+                    </div>
+                  </div>
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

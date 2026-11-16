@@ -8,11 +8,11 @@ const useRouter = () => {
   const [navigation, setNavigation] = useAtom(navigationAtom);
 
   const navigate = useCallback(
-    <P extends Router.Routes>(page: P, props?: undefined) => {
+    <P extends Router.Routes>(page: P, props?: Router.RouteState['props']) => {
       setNavigation((prev) => {
         const curr = prev.current;
 
-        if (curr.page === page && curr.props === props) return prev;
+        if (curr.page === page && curr.props?.recipeId === props?.recipeId) return prev;
 
         const newStack = [...prev.stack, curr];
         const stack = newStack.length > MAX_STACK ? newStack.slice(-MAX_STACK) : newStack;

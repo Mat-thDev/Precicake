@@ -9,13 +9,14 @@ import useBackButton from './hooks/useBackButton';
 import WelcomePage from './features/welcome';
 import Home from './features/home';
 import RecipesPage from './features/recipes';
+import RecipeDetailPage from './features/recipe-detail';
 
 const ROUTER_MAPPING: Record<Router.Routes, ComponentType> = {
   Home,
   Welcome: WelcomePage,
   Recipes: RecipesPage,
+  RecipeDetail: RecipeDetailPage,
   // TODO: substituir pelo componente real de cada rota
-  Calculator: NotFound,
   Ingredients: NotFound,
 };
 
@@ -27,7 +28,8 @@ export default function App() {
   // Volta nativa do Android: gesto/botão do sistema
   useBackButton();
 
-  const Element = ROUTER_MAPPING[currentPage];
+  // Fallback para página persistida de versões antigas (ex.: 'Calculator')
+  const Element = ROUTER_MAPPING[currentPage] ?? Home;
 
   return (
     <div className="flex h-full min-h-0 flex-col">
