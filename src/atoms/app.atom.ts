@@ -1,4 +1,5 @@
 import { atomWithStorage } from 'jotai/utils';
+import { capacitorStorage, STORAGE_KEYS } from '../lib/storage';
 
 const DEFAULT_STATE: App.AppState = {
   appName: 'Precicake',
@@ -6,4 +7,8 @@ const DEFAULT_STATE: App.AppState = {
   version: '1.0.0',
 };
 
-export const appStateAtom = atomWithStorage<App.AppState>('app', DEFAULT_STATE);
+export const appStateAtom = atomWithStorage<App.AppState>(
+  STORAGE_KEYS.app,
+  DEFAULT_STATE,
+  capacitorStorage(),
+);
