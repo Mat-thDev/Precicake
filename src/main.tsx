@@ -5,11 +5,10 @@ import { initNative } from './lib/native';
 import { hydrateStorage } from './lib/storage';
 
 void initNative();
+void hydrateStorage();
 
-void hydrateStorage().finally(() => {
-  createRoot(document.getElementById('root')!).render(
-    <Providers>
-      <App />
-    </Providers>,
-  );
-});
+createRoot(document.getElementById('root')!).render(
+  <Providers>
+    <App />
+  </Providers>,
+);
