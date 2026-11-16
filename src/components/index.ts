@@ -2,6 +2,8 @@
 // UI genéricos
 export { default as Button } from './ui/Button';
 export { default as Input } from './ui/Input';
+export { default as NumericInput } from './ui/NumericInput';
+export { default as Field } from './ui/Field';
 
 // Comuns
 export { Navbar } from './common/Navbar';

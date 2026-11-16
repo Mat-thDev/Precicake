@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { ComponentType } from 'react';
-import { Navbar, NotFound, SkeletonPage } from './components';
+import { Navbar, SkeletonPage } from './components';
 import { appStateAtom } from './atoms';
 import { storageReadyAtom } from './lib/storage';
 import useRouter from './hooks/useRouter';
@@ -10,14 +10,16 @@ import WelcomePage from './features/welcome';
 import Home from './features/home';
 import RecipesPage from './features/recipes';
 import RecipeDetailPage from './features/recipe-detail';
+import IngredientsPage from './features/ingredients';
+import IngredientFormPage from './features/ingredient-form';
 
 const ROUTER_MAPPING: Record<Router.Routes, ComponentType> = {
   Home,
   Welcome: WelcomePage,
   Recipes: RecipesPage,
   RecipeDetail: RecipeDetailPage,
-  // TODO: substituir pelo componente real de cada rota
-  Ingredients: NotFound,
+  Ingredients: IngredientsPage,
+  IngredientDetail: IngredientFormPage,
 };
 
 export default function App() {

@@ -12,7 +12,12 @@ const useRouter = () => {
       setNavigation((prev) => {
         const curr = prev.current;
 
-        if (curr.page === page && curr.props?.recipeId === props?.recipeId) return prev;
+        if (
+          curr.page === page &&
+          curr.props?.recipeId === props?.recipeId &&
+          curr.props?.ingredientId === props?.ingredientId
+        )
+          return prev;
 
         const newStack = [...prev.stack, curr];
         const stack = newStack.length > MAX_STACK ? newStack.slice(-MAX_STACK) : newStack;

@@ -29,6 +29,18 @@ declare namespace UI {
     className?: string;
   }
 
+  interface NumericInputProps extends Omit<InputProps, 'value' | 'onChange'> {
+    value: number | undefined;
+    onCommit: (value: number | undefined) => void;
+    /** Permite limpar o campo (commita undefined) — usado no rendimento */
+    allowEmpty?: boolean;
+  }
+
+  interface FieldProps {
+    label: string;
+    children: React.ReactNode;
+  }
+
   interface LogoProps {
     size?: LogoSize;
     className?: string;

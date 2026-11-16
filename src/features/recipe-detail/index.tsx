@@ -1,64 +1,14 @@
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import clsx from 'clsx';
 import { ArrowLeft, Copy, Plus, Trash2 } from 'lucide-react';
-import { Button, Input, NotFound } from '../../components';
+import { Button, Field, Input, NotFound, NumericInput } from '../../components';
 import useRouter from '../../hooks/useRouter';
 import useRecipes from '../../hooks/useRecipes';
+import useCatalog from '../../hooks/useCatalog';
 import { calculatePricing, ingredientCost } from '../../lib/pricing';
-import { formatCurrency, parseDecimal } from '../../lib/utils';
+import { formatCurrency } from '../../lib/utils';
 
 const UNITS: Recipe.Unit[] = ['g', 'kg', 'mL', 'L', 'un'];
-
-const toText = (value: number | undefined): string =>
-  value === undefined ? '' : String(value).replace('.', ',');
-
-interface NumericInputProps extends Omit<UI.InputProps, 'value' | 'onChange'> {
-  value: number | undefined;
-  onCommit: (value: number | undefined) => void;
-  /** Permite limpar o campo (commita undefined) — usado no rendimento */
-  allowEmpty?: boolean;
-}
-
-/** Input numérico com estado local: aceita vírgula pt-BR e só commita valores válidos */
-const NumericInput = ({
-  value,
-  onCommit,
-  allowEmpty = false,
-  className,
-  ...props
-}: NumericInputProps) => {
-  const [text, setText] = useState(toText(value));
-
-  return (
-    <Input
-      {...props}
-      inputMode="decimal"
-      className={className}
-      value={text}
-      onChange={(event) => {
-        const raw = event.target.value;
-        setText(raw);
-
-        if (raw.trim() === '') {
-          if (allowEmpty) onCommit(undefined);
-          return;
-        }
-
-        onCommit(parseDecimal(raw));
-      }}
-      onBlur={() => setText(toText(value))}
-    />
-  );
-};
-
-const Field = ({ label, children }: { label: string; children: ReactNode }) => (
-  <label className="block">
-    <span className="mb-1 block text-[0.65rem] font-medium uppercase tracking-wide text-base-content/50">
-      {label}
-    </span>
-    {children}
-  </label>
-);
 
 const SummaryRow = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-center justify-between gap-2 text-sm">
@@ -74,6 +24,8 @@ const SummaryRow = ({ label, value }: { label: string; value: string }) => (
 const RecipeDetailPage = () => {
   const { currentProps, goBack } = useRouter();
   const { recipes, updateRecipe } = useRecipes();
+  const { ingredients: catalog } = useCatalog();
+  const [selectedCatalogId, setSelectedCatalogId] = useState('');
   const recipe = recipes.find((item) => item.id === currentProps?.recipeId);
 
   if (!recipe) {
@@ -113,6 +65,29 @@ const RecipeDetailPage = () => {
 
   const removeIngredient = (id: string) =>
     patch({ ingredients: recipe.ingredients.filter((ingredient) => ingredient.id !== id) });
+
+  /** Copia os valores do catálogo para a linha da receita (cópia, não referência) */
+  const addFromCatalog = () => {
+    const item = catalog.find((entry) => entry.id === selectedCatalogId);
+    if (!item) return;
+
+    patch({
+      ingredients: [
+        ...recipe.ingredients,
+        {
+          id: crypto.randomUUID(),
+          catalogId: item.id,
+          name: item.name,
+          unit: item.unit,
+          packagePrice: item.packagePrice,
+          packageQty: item.packageQty,
+          usedQty: 0,
+        },
+      ],
+    });
+
+    setSelectedCatalogId('');
+  };
 
   const addAdditionalCost = () =>
     patch({
@@ -393,6 +368,10 @@ const RecipeDetailPage = () => {
                 </Button>
               </div>
 
+              {ingredient.catalogId && (
+                <p className="mt-1 text-[0.65rem] text-base-content/50">Do catálogo</p>
+              )}
+
               <div className="mt-2 grid grid-cols-3 gap-2">
                 <Field label="Preço embal.">
                   <NumericInput
@@ -440,10 +419,40 @@ const RecipeDetailPage = () => {
           ))}
         </div>
 
-        {/* TODO: "Adicionar do catálogo" — etapa Ingredients */}
-        <Button variant="accent" size="sm" block className="mt-3" onClick={addIngredient}>
+        <div className="mt-3 flex gap-2">
+          <select
+            className="select select-sm min-w-0 flex-1"
+            value={selectedCatalogId}
+            aria-label="Adicionar ingrediente do catálogo"
+            onChange={(event) => setSelectedCatalogId(event.target.value)}
+          >
+            <option value="">Adicionar do catálogo…</option>
+            {catalog.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name.trim() || 'Sem nome'}
+              </option>
+            ))}
+          </select>
+          <Button
+            variant="accent"
+            size="sm"
+            className="shrink-0"
+            disabled={!selectedCatalogId}
+            onClick={addFromCatalog}
+          >
+            Adicionar
+          </Button>
+        </div>
+
+        {catalog.length === 0 && (
+          <p className="mt-1.5 text-[0.7rem] text-base-content/50">
+            Nenhum ingrediente no catálogo ainda — cadastre em Ingredientes.
+          </p>
+        )}
+
+        <Button variant="outline" size="sm" block className="mt-2" onClick={addIngredient}>
           <Plus className="h-4 w-4" />
-          Adicionar ingrediente
+          Ingrediente manual
         </Button>
 
         <p className="mt-3 text-right text-[0.65rem] text-base-content/50">

@@ -3,6 +3,8 @@ declare namespace Recipe {
 
   interface Ingredient {
     id: string;
+    /** Referência ao catálogo — só para rótulo; valores foram copiados */
+    catalogId?: string;
     name: string;
     unit: Unit;
     /** Preço da embalagem inteira (R$) */

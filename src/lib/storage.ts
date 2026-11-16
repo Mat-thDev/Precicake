@@ -12,6 +12,7 @@ export const STORAGE_KEYS = {
   user: 'userdata',
   nav: 'nav',
   recipes: 'recipes',
+  ingredients: 'ingredients',
 } as const;
 
 /** Indica que o cache do Preferences foi hidratado (ou deu timeout) */

@@ -1,4 +1,4 @@
-import { BookOpen, ChevronRight } from 'lucide-react';
+import { BookOpen, ChevronRight, Wheat } from 'lucide-react';
 import { Button } from '../../components';
 import useRouter from '../../hooks/useRouter';
 import useProfile from '../../hooks/useProfile';
@@ -14,19 +14,35 @@ const Home = () => {
         <p className="text-xs text-base-content/60">Gerencie suas receitas e precificação</p>
       </div>
 
-      <Button
-        variant="outline"
-        size="lg"
-        block
-        className="justify-between"
-        onClick={() => navigate('Recipes')}
-      >
-        <span className="flex items-center gap-2">
-          <BookOpen className="h-5 w-5" aria-hidden />
-          Minhas receitas
-        </span>
-        <ChevronRight className="h-5 w-5" aria-hidden />
-      </Button>
+      <div className="space-y-3">
+        <Button
+          variant="outline"
+          size="lg"
+          block
+          className="justify-between"
+          onClick={() => navigate('Recipes')}
+        >
+          <span className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5" aria-hidden />
+            Minhas receitas
+          </span>
+          <ChevronRight className="h-5 w-5" aria-hidden />
+        </Button>
+
+        <Button
+          variant="outline"
+          size="lg"
+          block
+          className="justify-between"
+          onClick={() => navigate('Ingredients')}
+        >
+          <span className="flex items-center gap-2">
+            <Wheat className="h-5 w-5" aria-hidden />
+            Ingredientes
+          </span>
+          <ChevronRight className="h-5 w-5" aria-hidden />
+        </Button>
+      </div>
     </div>
   );
 };
