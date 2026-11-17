@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { BookOpen, House, Plus, Wheat } from 'lucide-react';
 import useRouter from '../../hooks/useRouter';
 import useRecipes from '../../hooks/useRecipes';
+import { showToast } from '../../hooks/useToast';
 
 type Tab = {
   page: Router.Routes;
@@ -34,6 +35,7 @@ export function BottomBar() {
 
   const handleNewRecipe = () => {
     const item = createRecipe();
+    showToast('Receita criada');
     navigate('RecipeDetail', { recipeId: item.id });
   };
 

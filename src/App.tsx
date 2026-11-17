@@ -2,7 +2,7 @@ import { useAtomValue } from 'jotai';
 import clsx from 'clsx';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { ComponentType } from 'react';
-import { BottomBar, SkeletonPage } from './components';
+import { BottomBar, SkeletonPage, ToastHost } from './components';
 import { storageReadyAtom } from './lib/storage';
 import useRouter from './hooks/useRouter';
 import useBackButton from './hooks/useBackButton';
@@ -59,6 +59,7 @@ export default function App() {
         )}
       </main>
       <BottomBar />
+      <ToastHost />
     </div>
   );
 }

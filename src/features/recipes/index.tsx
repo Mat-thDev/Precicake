@@ -2,6 +2,7 @@ import { ChefHat, Plus } from 'lucide-react';
 import { Button } from '../../components';
 import useRouter from '../../hooks/useRouter';
 import useRecipes from '../../hooks/useRecipes';
+import { showToast } from '../../hooks/useToast';
 import { calculatePricing } from '../../lib/pricing';
 import { formatCurrency } from '../../lib/utils';
 
@@ -11,6 +12,7 @@ const RecipesPage = () => {
 
   const handleCreate = () => {
     const item = createRecipe();
+    showToast('Receita criada');
     navigate('RecipeDetail', { recipeId: item.id });
   };
 

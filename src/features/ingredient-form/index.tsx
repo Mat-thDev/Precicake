@@ -3,6 +3,7 @@ import { ArrowLeft, Trash2 } from 'lucide-react';
 import { Button, Field, Input, NotFound, NumericInput } from '../../components';
 import useRouter from '../../hooks/useRouter';
 import useCatalog from '../../hooks/useCatalog';
+import { showToast } from '../../hooks/useToast';
 
 const UNITS: Recipe.Unit[] = ['g', 'kg', 'mL', 'L', 'un'];
 
@@ -47,12 +48,14 @@ const IngredientFormPage = () => {
     if (existing) updateIngredient(existing.id, payload);
     else addIngredient(payload);
 
+    showToast(existing ? 'Ingrediente atualizado' : 'Ingrediente salvo');
     goBack();
   };
 
   const handleDelete = () => {
     if (!existing) return;
     removeIngredient(existing.id);
+    showToast('Ingrediente excluído', 'info');
     goBack();
   };
 
