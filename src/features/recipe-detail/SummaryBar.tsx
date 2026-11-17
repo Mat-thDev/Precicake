@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { ChevronUp, Copy } from 'lucide-react';
 import { showToast } from '../../hooks/useToast';
 import type { PricingResult } from '../../lib/pricing';
-import { formatCurrency } from '../../lib/utils';
+import { copyText, formatCurrency } from '../../lib/utils';
 
 interface SummaryBarProps {
   pricing: PricingResult;
@@ -119,10 +119,12 @@ export function SummaryBar({
                     aria-label={`Copiar preço de venda multiplicado por ${mult}`}
                     onClick={(event) => {
                       event.stopPropagation();
-                      void navigator.clipboard
-                        ?.writeText(formatCurrency(price))
-                        .then(() => showToast('Preço copiado'))
-                        .catch(() => {});
+                      void copyText(formatCurrency(price)).then((ok) =>
+                        showToast(
+                          ok ? 'Preço copiado' : 'Não foi possível copiar',
+                          ok ? 'success' : 'error',
+                        ),
+                      );
                     }}
                   >
                     <Copy className="h-3 w-3" />

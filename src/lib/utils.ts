@@ -14,6 +14,40 @@ export function parseDecimal(text: string): number {
 }
 
 /**
+ * Copia texto para a área de transferência.
+ * `navigator.clipboard` só existe em contexto seguro (HTTPS/localhost) —
+ * no dispositivo (http://IP) cai no `execCommand`, que funciona no WebView.
+ */
+export function copyText(text: string): Promise<boolean> {
+  if (navigator.clipboard?.writeText) {
+    return navigator.clipboard.writeText(text).then(
+      () => true,
+      () => fallbackCopy(text),
+    );
+  }
+  return Promise.resolve(fallbackCopy(text));
+}
+
+function fallbackCopy(text: string): boolean {
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-9999px';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    textarea.setSelectionRange(0, text.length);
+    const ok = document.execCommand('copy');
+    textarea.remove();
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * UUID v4 com fallback para contexto não-seguro.
  * `crypto.randomUUID()` só existe em HTTPS/localhost — no dispositivo
  * (app servido por http://IP) ela é `undefined` e o save quebrava.

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { ArrowLeft, ChevronDown, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Copy, Plus, Trash2 } from 'lucide-react';
 import {
   Button,
   Collapse,
@@ -15,7 +15,8 @@ import useRecipes from '../../hooks/useRecipes';
 import useCatalog from '../../hooks/useCatalog';
 import { showToast } from '../../hooks/useToast';
 import { calculatePricing, ingredientCost } from '../../lib/pricing';
-import { formatCurrency, uuid } from '../../lib/utils';
+import { recipeShareText } from '../../lib/share';
+import { copyText, formatCurrency, uuid } from '../../lib/utils';
 import SummaryBar from './SummaryBar';
 
 const UNITS: Recipe.Unit[] = ['g', 'kg', 'mL', 'L', 'un'];
@@ -140,6 +141,12 @@ const RecipeDetailPage = () => {
     goBack();
   };
 
+  const handleCopy = () => {
+    void copyText(recipeShareText(recipe)).then((ok) =>
+      showToast(ok ? 'Receita copiada' : 'Não foi possível copiar', ok ? 'success' : 'error'),
+    );
+  };
+
   return (
     <div className="flex h-full w-full flex-col">
       <div className="page-scroll min-h-0 flex-1 space-y-4 px-4 py-4">
@@ -155,15 +162,26 @@ const RecipeDetailPage = () => {
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="btn-square text-error"
-              onClick={() => setConfirmDelete(true)}
-              aria-label="Excluir receita"
-            >
-              <Trash2 className="h-5 w-5" />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="btn-square"
+                onClick={handleCopy}
+                aria-label="Copiar receita"
+              >
+                <Copy className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="btn-square text-error"
+                onClick={() => setConfirmDelete(true)}
+                aria-label="Excluir receita"
+              >
+                <Trash2 className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
           <Input
             value={recipe.name}
