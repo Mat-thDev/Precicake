@@ -37,11 +37,12 @@ const SummaryRow = ({ label, value }: { label: string; value: string }) => (
  */
 const RecipeDetailPage = () => {
   const { currentProps, goBack } = useRouter();
-  const { recipes, updateRecipe } = useRecipes();
+  const { recipes, updateRecipe, removeRecipe } = useRecipes();
   const { ingredients: catalog } = useCatalog();
   const [selectedCatalogId, setSelectedCatalogId] = useState('');
   const [openSection, setOpenSection] = useState<SectionId>('ingredients');
   const [expandedIngredientId, setExpandedIngredientId] = useState<string | undefined>(undefined);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const recipe = recipes.find((item) => item.id === currentProps?.recipeId);
 
   // Auto-save: avisa após 800ms sem alterações (ignora mount e troca de receita)
@@ -133,20 +134,37 @@ const RecipeDetailPage = () => {
   const removeAdditionalCost = (id: string) =>
     patch({ additionalCosts: recipe.additionalCosts.filter((cost) => cost.id !== id) });
 
+  const handleDelete = () => {
+    removeRecipe(recipe.id);
+    showToast('Receita excluída', 'info');
+    goBack();
+  };
+
   return (
     <div className="flex h-full w-full flex-col">
       <div className="page-scroll min-h-0 flex-1 space-y-4 px-4 py-4">
         {/* Dados */}
         <div className="space-y-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="btn-square"
-            onClick={goBack}
-            aria-label="Voltar"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center justify-between">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="btn-square"
+              onClick={goBack}
+              aria-label="Voltar"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="btn-square text-error"
+              onClick={() => setConfirmDelete(true)}
+              aria-label="Excluir receita"
+            >
+              <Trash2 className="h-5 w-5" />
+            </Button>
+          </div>
           <Input
             value={recipe.name}
             placeholder="Nome da receita"
@@ -466,6 +484,37 @@ const RecipeDetailPage = () => {
         pricePerPiece={pricing.pricePerPiece}
         onMultiplierChange={(multiplier) => patch({ multiplier })}
       />
+
+      {/* Confirmação de exclusão */}
+      {confirmDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Confirmar exclusão"
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-base-100 p-4 shadow-xl">
+            <h2 className="font-bold">Excluir receita?</h2>
+            <p className="mt-2 text-sm text-base-content/70">
+              “{recipe.name.trim() || 'Receita sem nome'}” e todos os ingredientes dela serão
+              removidos. Essa ação não pode ser desfeita.
+            </p>
+
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <Button variant="outline" size="sm" onClick={() => setConfirmDelete(false)}>
+                Cancelar
+              </Button>
+              <button
+                type="button"
+                className="btn btn-error btn-sm select-none transition-transform active:scale-95"
+                onClick={handleDelete}
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
