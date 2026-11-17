@@ -1,6 +1,7 @@
 import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 import { recipesAtom } from '../atoms';
+import { uuid } from '../lib/utils';
 
 const useRecipes = () => {
   const [recipes, setRecipes] = useAtom(recipesAtom);
@@ -9,7 +10,7 @@ const useRecipes = () => {
     (recipe: Omit<Recipe.Item, 'id' | 'createdAt'>) => {
       const item: Recipe.Item = {
         ...recipe,
-        id: crypto.randomUUID(),
+        id: uuid(),
         createdAt: new Date().toISOString(),
       };
 
@@ -17,6 +18,19 @@ const useRecipes = () => {
       return item;
     },
     [setRecipes],
+  );
+
+  /** Cria receita vazia com os padrões do app e retorna o item criado */
+  const createRecipe = useCallback(
+    () =>
+      addRecipe({
+        name: '',
+        ingredients: [],
+        percentCost: 3.5,
+        additionalCosts: [],
+        multiplier: 3,
+      }),
+    [addRecipe],
   );
 
   const updateRecipe = useCallback(
@@ -33,7 +47,7 @@ const useRecipes = () => {
     [setRecipes],
   );
 
-  return { recipes, addRecipe, updateRecipe, removeRecipe };
+  return { recipes, addRecipe, createRecipe, updateRecipe, removeRecipe };
 };
 
 export default useRecipes;

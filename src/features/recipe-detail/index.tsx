@@ -6,7 +6,7 @@ import useRouter from '../../hooks/useRouter';
 import useRecipes from '../../hooks/useRecipes';
 import useCatalog from '../../hooks/useCatalog';
 import { calculatePricing, ingredientCost } from '../../lib/pricing';
-import { formatCurrency } from '../../lib/utils';
+import { formatCurrency, uuid } from '../../lib/utils';
 
 const UNITS: Recipe.Unit[] = ['g', 'kg', 'mL', 'L', 'un'];
 
@@ -53,7 +53,7 @@ const RecipeDetailPage = () => {
       ingredients: [
         ...recipe.ingredients,
         {
-          id: crypto.randomUUID(),
+          id: uuid(),
           name: '',
           unit: 'g',
           packagePrice: 0,
@@ -75,7 +75,7 @@ const RecipeDetailPage = () => {
       ingredients: [
         ...recipe.ingredients,
         {
-          id: crypto.randomUUID(),
+          id: uuid(),
           catalogId: item.id,
           name: item.name,
           unit: item.unit,
@@ -91,7 +91,7 @@ const RecipeDetailPage = () => {
 
   const addAdditionalCost = () =>
     patch({
-      additionalCosts: [...recipe.additionalCosts, { id: crypto.randomUUID(), name: '', value: 0 }],
+      additionalCosts: [...recipe.additionalCosts, { id: uuid(), name: '', value: 0 }],
     });
 
   const removeAdditionalCost = (id: string) =>

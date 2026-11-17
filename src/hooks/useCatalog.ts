@@ -1,6 +1,7 @@
 import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 import { catalogAtom } from '../atoms';
+import { uuid } from '../lib/utils';
 
 const useCatalog = () => {
   const [ingredients, setIngredients] = useAtom(catalogAtom);
@@ -9,7 +10,7 @@ const useCatalog = () => {
     (ingredient: Omit<Catalog.Item, 'id' | 'createdAt'>) => {
       const item: Catalog.Item = {
         ...ingredient,
-        id: crypto.randomUUID(),
+        id: uuid(),
         createdAt: new Date().toISOString(),
       };
 
