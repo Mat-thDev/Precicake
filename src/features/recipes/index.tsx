@@ -7,17 +7,10 @@ import { formatCurrency } from '../../lib/utils';
 
 const RecipesPage = () => {
   const { navigate } = useRouter();
-  const { recipes, addRecipe } = useRecipes();
+  const { recipes, createRecipe } = useRecipes();
 
-  const createRecipe = () => {
-    const item = addRecipe({
-      name: '',
-      ingredients: [],
-      percentCost: 3.5,
-      additionalCosts: [],
-      multiplier: 3,
-    });
-
+  const handleCreate = () => {
+    const item = createRecipe();
     navigate('RecipeDetail', { recipeId: item.id });
   };
 
@@ -31,7 +24,7 @@ const RecipesPage = () => {
           </p>
         </div>
 
-        <Button variant="accent" size="sm" onClick={createRecipe}>
+        <Button variant="accent" size="sm" onClick={handleCreate}>
           <Plus className="h-4 w-4" />
           Nova receita
         </Button>

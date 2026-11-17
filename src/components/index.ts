@@ -6,7 +6,7 @@ export { default as NumericInput } from './ui/NumericInput';
 export { default as Field } from './ui/Field';
 
 // Comuns
-export { Navbar } from './common/Navbar';
+export { BottomBar } from './common/BottomBar';
 export { default as Logo } from './common/Logo';
 export { default as NotFound } from './common/NotFound';
 export { default as SkeletonPage } from './common/SkeletonPage';

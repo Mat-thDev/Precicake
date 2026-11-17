@@ -1,8 +1,8 @@
 import { useAtomValue } from 'jotai';
+import clsx from 'clsx';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { ComponentType } from 'react';
-import { Navbar, SkeletonPage } from './components';
-import { appStateAtom } from './atoms';
+import { BottomBar, SkeletonPage } from './components';
 import { storageReadyAtom } from './lib/storage';
 import useRouter from './hooks/useRouter';
 import useBackButton from './hooks/useBackButton';
@@ -23,7 +23,6 @@ const ROUTER_MAPPING: Record<Router.Routes, ComponentType> = {
 };
 
 export default function App() {
-  const { appName } = useAtomValue(appStateAtom);
   const storageReady = useAtomValue(storageReadyAtom);
   const { currentPage } = useRouter();
 
@@ -35,8 +34,13 @@ export default function App() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <Navbar title={appName} />
-      <main className="min-h-0 flex-1 overflow-hidden">
+      <main
+        className={clsx(
+          'min-h-0 flex-1 overflow-hidden',
+          // Sem header, o conteúdo precisa descer da status bar (edge-to-edge)
+          currentPage !== 'Welcome' && 'pt-safe',
+        )}
+      >
         {!storageReady ? (
           <SkeletonPage />
         ) : (
@@ -54,6 +58,7 @@ export default function App() {
           </AnimatePresence>
         )}
       </main>
+      <BottomBar />
     </div>
   );
 }

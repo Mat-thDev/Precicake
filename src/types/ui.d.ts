@@ -10,10 +10,6 @@ declare namespace UI {
 
   type LogoSize = 'xs' | 'sm' | 'md' | 'lg' | 'full';
 
-  interface NavbarProps {
-    title: string;
-  }
-
   interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'className'> {
     variant?: ButtonVariant;
     size?: ButtonSize;
