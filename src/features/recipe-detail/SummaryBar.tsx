@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import clsx from 'clsx';
-import { ChevronUp } from 'lucide-react';
+import { ChevronUp, Copy } from 'lucide-react';
+import { showToast } from '../../hooks/useToast';
 import type { PricingResult } from '../../lib/pricing';
 import { formatCurrency } from '../../lib/utils';
 
@@ -84,26 +85,49 @@ export function SummaryBar({
             const price = mult === 2 ? pricing.salePrices.x2 : pricing.salePrices.x3;
 
             return (
-              <button
+              <div
                 key={mult}
-                type="button"
+                role="button"
+                tabIndex={0}
                 aria-pressed={selected}
                 className={clsx(
-                  'rounded-xl border px-2.5 py-1.5 text-right transition-colors active:scale-95',
+                  'cursor-pointer rounded-xl border px-2.5 py-1.5 text-right transition-colors active:scale-95',
                   selected
                     ? 'border-primary bg-primary/10'
                     : 'border-base-200 bg-base-100 hover:border-base-300',
                 )}
                 onClick={() => onMultiplierChange(mult as 2 | 3)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    onMultiplierChange(mult as 2 | 3);
+                  }
+                }}
               >
-                <span
-                  className={clsx(
-                    'block text-[0.6rem] font-semibold',
-                    selected ? 'text-primary' : 'text-base-content/50',
-                  )}
-                >
-                  Venda ×{mult}
-                </span>
+                <div className="flex items-center gap-1">
+                  <span
+                    className={clsx(
+                      'text-[0.6rem] font-semibold',
+                      selected ? 'text-primary' : 'text-base-content/50',
+                    )}
+                  >
+                    Venda ×{mult}
+                  </span>
+                  <button
+                    type="button"
+                    className="text-base-content/40 transition-colors hover:text-base-content"
+                    aria-label={`Copiar preço de venda multiplicado por ${mult}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      void navigator.clipboard
+                        ?.writeText(formatCurrency(price))
+                        .then(() => showToast('Preço copiado'))
+                        .catch(() => {});
+                    }}
+                  >
+                    <Copy className="h-3 w-3" />
+                  </button>
+                </div>
                 <span
                   className={clsx(
                     'block text-sm font-bold leading-tight',
@@ -112,7 +136,7 @@ export function SummaryBar({
                 >
                   {formatCurrency(price)}
                 </span>
-              </button>
+              </div>
             );
           })}
         </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { ArrowLeft, ChevronDown, Copy, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import {
   Button,
   Collapse,
@@ -20,7 +20,7 @@ import SummaryBar from './SummaryBar';
 
 const UNITS: Recipe.Unit[] = ['g', 'kg', 'mL', 'L', 'un'];
 
-type SectionId = 'ingredients' | 'costs' | 'result';
+type SectionId = 'ingredients' | 'costs';
 
 const SummaryRow = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-center justify-between gap-2 text-sm">
@@ -132,13 +132,6 @@ const RecipeDetailPage = () => {
 
   const removeAdditionalCost = (id: string) =>
     patch({ additionalCosts: recipe.additionalCosts.filter((cost) => cost.id !== id) });
-
-  const copyPrice = (value: number) => {
-    void navigator.clipboard
-      ?.writeText(formatCurrency(value))
-      .then(() => showToast('Preço copiado'))
-      .catch(() => {});
-  };
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -461,102 +454,6 @@ const RecipeDetailPage = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </CollapsibleSection>
-
-        {/* ③ Resultado — leitura */}
-        <CollapsibleSection
-          title="Resultado"
-          description="Atualizado a cada alteração."
-          summary={<span className="text-sm font-bold">{formatCurrency(pricing.totalPrice)}</span>}
-          open={openSection === 'result'}
-          onToggle={() => setOpenSection('result')}
-        >
-          <div className="space-y-2.5">
-            <SummaryRow
-              label="Custo dos ingredientes"
-              value={formatCurrency(pricing.ingredientCost)}
-            />
-            <SummaryRow
-              label={`Custo percentual (${recipe.percentCost.toLocaleString('pt-BR')}%)`}
-              value={formatCurrency(pricing.percentValue)}
-            />
-            <SummaryRow label="Custos adicionais" value={formatCurrency(pricing.additionalCost)} />
-          </div>
-
-          <div className="mt-4 border-t border-base-200 pt-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-base-content/50">
-              Custo total estimado
-            </p>
-            <p className="mt-1 text-3xl font-bold">{formatCurrency(pricing.totalPrice)}</p>
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            {[2, 3].map((mult) => {
-              const selected = recipe.multiplier === mult;
-              const price = mult === 2 ? pricing.salePrices.x2 : pricing.salePrices.x3;
-
-              return (
-                <div
-                  key={mult}
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={selected}
-                  className={clsx(
-                    'cursor-pointer rounded-2xl border p-3 text-left transition-colors',
-                    selected
-                      ? 'border-primary bg-primary/10'
-                      : 'border-base-200 bg-base-100 hover:border-base-300',
-                  )}
-                  onClick={() => patch({ multiplier: mult as 2 | 3 })}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      patch({ multiplier: mult as 2 | 3 });
-                    }
-                  }}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold text-base-content/60">
-                      Venda ×{mult}
-                    </span>
-                    <button
-                      type="button"
-                      className="btn btn-ghost btn-xs btn-square"
-                      aria-label={`Copiar preço de venda multiplicado por ${mult}`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        copyPrice(price);
-                      }}
-                    >
-                      <Copy className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                  <p
-                    className={clsx(
-                      'mt-1 text-lg font-bold',
-                      selected ? 'text-primary' : 'text-base-content',
-                    )}
-                  >
-                    {formatCurrency(price)}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-
-          <p className="mt-2 text-[0.7rem] leading-snug text-base-content/50">
-            Os preços são calculados pelo custo total multiplicado por 2 ou 3.
-          </p>
-
-          <div className="mt-3 rounded-xl bg-base-200/50 p-3 text-[0.7rem] leading-snug text-base-content/70">
-            <p>
-              <span className="font-semibold text-base-content">Fórmula:</span> custo dos
-              ingredientes + custo percentual + custos adicionais, × multiplicador.
-            </p>
-            <p className="mt-1.5">
-              O percentual de {recipe.percentCost.toLocaleString('pt-BR')}% é editável na seção
-              Custos. Confira se ele cobre os custos que deseja incluir.
-            </p>
           </div>
         </CollapsibleSection>
       </div>
