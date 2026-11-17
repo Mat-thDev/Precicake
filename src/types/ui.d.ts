@@ -48,6 +48,22 @@ declare namespace UI {
     description?: string;
   }
 
+  interface CollapseProps {
+    open: boolean;
+    children: React.ReactNode;
+  }
+
+  interface CollapsibleSectionProps {
+    title: string;
+    /** Texto auxiliar exibido abaixo do título quando o corpo está aberto */
+    description?: string;
+    /** Resumo à direita no header (badge, valor…) — sempre visível */
+    summary?: React.ReactNode;
+    open: boolean;
+    onToggle: () => void;
+    children: React.ReactNode;
+  }
+
   interface SkeletonPageProps {
     /** Exibe o esqueleto do título/cabeçalho */
     header?: boolean;

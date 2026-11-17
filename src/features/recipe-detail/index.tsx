@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { ArrowLeft, Copy, Plus, Trash2 } from 'lucide-react';
-import { Button, Field, Input, NotFound, NumericInput } from '../../components';
+import { ArrowLeft, ChevronDown, Copy, Plus, Trash2 } from 'lucide-react';
+import {
+  Button,
+  Collapse,
+  CollapsibleSection,
+  Field,
+  Input,
+  NotFound,
+  NumericInput,
+} from '../../components';
 import useRouter from '../../hooks/useRouter';
 import useRecipes from '../../hooks/useRecipes';
 import useCatalog from '../../hooks/useCatalog';
@@ -12,6 +20,8 @@ import SummaryBar from './SummaryBar';
 
 const UNITS: Recipe.Unit[] = ['g', 'kg', 'mL', 'L', 'un'];
 
+type SectionId = 'ingredients' | 'costs' | 'result';
+
 const SummaryRow = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-center justify-between gap-2 text-sm">
     <span className="text-base-content/70">{label}</span>
@@ -20,15 +30,18 @@ const SummaryRow = ({ label, value }: { label: string; value: string }) => (
 );
 
 /**
- * Detalhe da receita — fluxo de cima para baixo:
- * dados → ingredientes → custos (edição) → resultado (leitura).
- * Auto-save com aviso "✓ Salvo" (debounce 800ms) + barra de resumo fixa.
+ * Detalhe da receita — acordeão: uma seção aberta por vez
+ * (padrão: Ingredientes), com resumo visível no header de cada uma.
+ * Ingredientes em linhas colapsadas (um expandido por vez).
+ * Auto-save com toast (debounce 800ms) + barra de resumo fixa.
  */
 const RecipeDetailPage = () => {
   const { currentProps, goBack } = useRouter();
   const { recipes, updateRecipe } = useRecipes();
   const { ingredients: catalog } = useCatalog();
   const [selectedCatalogId, setSelectedCatalogId] = useState('');
+  const [openSection, setOpenSection] = useState<SectionId>('ingredients');
+  const [expandedIngredientId, setExpandedIngredientId] = useState<string | undefined>(undefined);
   const recipe = recipes.find((item) => item.id === currentProps?.recipeId);
 
   // Auto-save: avisa após 800ms sem alterações (ignora mount e troca de receita)
@@ -64,12 +77,14 @@ const RecipeDetailPage = () => {
       ),
     });
 
-  const addIngredient = () =>
+  const addIngredient = () => {
+    const id = uuid();
+    setExpandedIngredientId(id);
     patch({
       ingredients: [
         ...recipe.ingredients,
         {
-          id: uuid(),
+          id,
           name: '',
           unit: 'g',
           packagePrice: 0,
@@ -78,20 +93,25 @@ const RecipeDetailPage = () => {
         },
       ],
     });
+  };
 
-  const removeIngredient = (id: string) =>
+  const removeIngredient = (id: string) => {
+    setExpandedIngredientId((current) => (current === id ? undefined : current));
     patch({ ingredients: recipe.ingredients.filter((ingredient) => ingredient.id !== id) });
+  };
 
   /** Copia os valores do catálogo para a linha da receita (cópia, não referência) */
   const addFromCatalog = () => {
     const item = catalog.find((entry) => entry.id === selectedCatalogId);
     if (!item) return;
 
+    const id = uuid();
+    setExpandedIngredientId(id);
     patch({
       ingredients: [
         ...recipe.ingredients,
         {
-          id: uuid(),
+          id,
           catalogId: item.id,
           name: item.name,
           unit: item.unit,
@@ -144,118 +164,16 @@ const RecipeDetailPage = () => {
         </div>
 
         {/* ① Ingredientes */}
-        <section className="rounded-2xl border border-base-200 bg-base-100 p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h2 className="font-bold">Ingredientes</h2>
-              <p className="text-xs text-base-content/60">
-                Informe quanto custa cada embalagem e quanto entra na receita.
-              </p>
-            </div>
-            <span className="badge badge-ghost badge-sm shrink-0">
-              {recipe.ingredients.length} itens
-            </span>
-          </div>
-
-          <div className="mt-3 space-y-3">
-            {recipe.ingredients.length === 0 && (
-              <p className="rounded-xl border border-dashed border-base-300 p-4 text-center text-sm text-base-content/60">
-                Nenhum ingrediente ainda.
-              </p>
-            )}
-
-            {recipe.ingredients.map((ingredient) => (
-              <div key={ingredient.id} className="rounded-xl border border-base-200 p-3">
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={ingredient.name}
-                    placeholder="Ingrediente"
-                    size="sm"
-                    className="min-w-0 flex-1"
-                    aria-label="Nome do ingrediente"
-                    onChange={(event) =>
-                      updateIngredient(ingredient.id, { name: event.target.value })
-                    }
-                  />
-                  <select
-                    className="select select-sm w-20 shrink-0"
-                    value={ingredient.unit}
-                    aria-label="Unidade"
-                    onChange={(event) =>
-                      updateIngredient(ingredient.id, {
-                        unit: event.target.value as Recipe.Unit,
-                      })
-                    }
-                  >
-                    {UNITS.map((unit) => (
-                      <option key={unit} value={unit}>
-                        {unit}
-                      </option>
-                    ))}
-                  </select>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="btn-square shrink-0"
-                    onClick={() => removeIngredient(ingredient.id)}
-                    aria-label="Remover ingrediente"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {ingredient.catalogId && (
-                  <p className="mt-1 text-[0.65rem] text-base-content/50">Do catálogo</p>
-                )}
-
-                <div className="mt-2 grid grid-cols-3 gap-2">
-                  <Field label="Preço embal.">
-                    <NumericInput
-                      value={ingredient.packagePrice}
-                      onCommit={(value) =>
-                        updateIngredient(ingredient.id, { packagePrice: value ?? 0 })
-                      }
-                      size="sm"
-                      className="text-right"
-                      placeholder="R$"
-                      aria-label="Preço da embalagem"
-                    />
-                  </Field>
-                  <Field label="Qtd. embal.">
-                    <NumericInput
-                      value={ingredient.packageQty}
-                      onCommit={(value) =>
-                        updateIngredient(ingredient.id, { packageQty: value ?? 0 })
-                      }
-                      size="sm"
-                      className="text-right"
-                      placeholder="0"
-                      aria-label="Quantidade da embalagem"
-                    />
-                  </Field>
-                  <Field label="Usado">
-                    <NumericInput
-                      value={ingredient.usedQty}
-                      onCommit={(value) => updateIngredient(ingredient.id, { usedQty: value ?? 0 })}
-                      size="sm"
-                      className="text-right"
-                      placeholder="0"
-                      aria-label="Quantidade usada na receita"
-                    />
-                  </Field>
-                </div>
-
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-xs text-base-content/50">Custo usado</span>
-                  <span className="text-sm font-bold text-primary">
-                    {formatCurrency(ingredientCost(ingredient))}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-3 flex gap-2">
+        <CollapsibleSection
+          title="Ingredientes"
+          description="Informe quanto custa cada embalagem e quanto entra na receita."
+          summary={
+            <span className="badge badge-ghost badge-sm">{recipe.ingredients.length} itens</span>
+          }
+          open={openSection === 'ingredients'}
+          onToggle={() => setOpenSection('ingredients')}
+        >
+          <div className="flex gap-2">
             <select
               className="select select-sm min-w-0 flex-1"
               value={selectedCatalogId}
@@ -291,19 +209,157 @@ const RecipeDetailPage = () => {
             Ingrediente manual
           </Button>
 
+          <div className="mt-3 space-y-2">
+            {recipe.ingredients.length === 0 && (
+              <p className="rounded-xl border border-dashed border-base-300 p-4 text-center text-sm text-base-content/60">
+                Nenhum ingrediente ainda.
+              </p>
+            )}
+
+            {recipe.ingredients.map((ingredient) => {
+              const expanded = expandedIngredientId === ingredient.id;
+
+              return (
+                <div
+                  key={ingredient.id}
+                  className="overflow-hidden rounded-xl border border-base-200"
+                >
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-2 px-3 py-2.5 text-left"
+                    aria-expanded={expanded}
+                    onClick={() => setExpandedIngredientId(expanded ? undefined : ingredient.id)}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="truncate text-sm font-medium">
+                          {ingredient.name.trim() || 'Sem nome'}
+                        </p>
+                        {ingredient.catalogId && (
+                          <span className="badge badge-ghost badge-xs shrink-0">catálogo</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-base-content/50">
+                        {ingredient.usedQty} {ingredient.unit} usados
+                      </p>
+                    </div>
+
+                    <span className="shrink-0 text-sm font-bold text-primary">
+                      {formatCurrency(ingredientCost(ingredient))}
+                    </span>
+                    <ChevronDown
+                      className={clsx(
+                        'h-4 w-4 shrink-0 text-base-content/40 transition-transform',
+                        expanded && 'rotate-180',
+                      )}
+                      aria-hidden
+                    />
+                  </button>
+
+                  <Collapse open={expanded}>
+                    <div className="space-y-2 border-t border-base-200 p-3">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={ingredient.name}
+                          placeholder="Ingrediente"
+                          size="sm"
+                          className="min-w-0 flex-1"
+                          aria-label="Nome do ingrediente"
+                          onChange={(event) =>
+                            updateIngredient(ingredient.id, { name: event.target.value })
+                          }
+                        />
+                        <select
+                          className="select select-sm w-20 shrink-0"
+                          value={ingredient.unit}
+                          aria-label="Unidade"
+                          onChange={(event) =>
+                            updateIngredient(ingredient.id, {
+                              unit: event.target.value as Recipe.Unit,
+                            })
+                          }
+                        >
+                          {UNITS.map((unit) => (
+                            <option key={unit} value={unit}>
+                              {unit}
+                            </option>
+                          ))}
+                        </select>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="btn-square shrink-0"
+                          onClick={() => removeIngredient(ingredient.id)}
+                          aria-label="Remover ingrediente"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2">
+                        <Field label="Preço embal.">
+                          <NumericInput
+                            value={ingredient.packagePrice}
+                            onCommit={(value) =>
+                              updateIngredient(ingredient.id, { packagePrice: value ?? 0 })
+                            }
+                            size="sm"
+                            className="text-right"
+                            placeholder="R$"
+                            aria-label="Preço da embalagem"
+                          />
+                        </Field>
+                        <Field label="Qtd. embal.">
+                          <NumericInput
+                            value={ingredient.packageQty}
+                            onCommit={(value) =>
+                              updateIngredient(ingredient.id, { packageQty: value ?? 0 })
+                            }
+                            size="sm"
+                            className="text-right"
+                            placeholder="0"
+                            aria-label="Quantidade da embalagem"
+                          />
+                        </Field>
+                        <Field label="Usado">
+                          <NumericInput
+                            value={ingredient.usedQty}
+                            onCommit={(value) =>
+                              updateIngredient(ingredient.id, { usedQty: value ?? 0 })
+                            }
+                            size="sm"
+                            className="text-right"
+                            placeholder="0"
+                            aria-label="Quantidade usada na receita"
+                          />
+                        </Field>
+                      </div>
+                    </div>
+                  </Collapse>
+                </div>
+              );
+            })}
+          </div>
+
           <p className="mt-3 text-right text-[0.65rem] text-base-content/50">
             Valores em R$ e pela unidade da embalagem
           </p>
-        </section>
+        </CollapsibleSection>
 
         {/* ② Custos — edição */}
-        <section className="rounded-2xl border border-base-200 bg-base-100 p-4">
-          <h2 className="font-bold">Custos</h2>
-          <p className="text-xs text-base-content/60">
-            Percentual sobre os ingredientes, custos fixos e rendimento.
-          </p>
-
-          <div className="mt-4 space-y-3">
+        <CollapsibleSection
+          title="Custos"
+          description="Percentual sobre os ingredientes, custos fixos e rendimento."
+          summary={
+            <span className="text-xs font-medium text-base-content/60">
+              {recipe.percentCost.toLocaleString('pt-BR')}% ·{' '}
+              {formatCurrency(pricing.additionalCost)}
+            </span>
+          }
+          open={openSection === 'costs'}
+          onToggle={() => setOpenSection('costs')}
+        >
+          <div className="space-y-3">
             <div className="flex items-center justify-between gap-2 text-sm">
               <span className="text-base-content/70">Custo percentual</span>
               <span className="flex items-center gap-1.5">
@@ -406,14 +462,17 @@ const RecipeDetailPage = () => {
               </div>
             </div>
           </div>
-        </section>
+        </CollapsibleSection>
 
         {/* ③ Resultado — leitura */}
-        <section className="rounded-2xl border border-base-200 bg-base-100 p-4">
-          <h2 className="font-bold">Resultado</h2>
-          <p className="text-xs text-base-content/60">Atualizado a cada alteração.</p>
-
-          <div className="mt-4 space-y-2.5">
+        <CollapsibleSection
+          title="Resultado"
+          description="Atualizado a cada alteração."
+          summary={<span className="text-sm font-bold">{formatCurrency(pricing.totalPrice)}</span>}
+          open={openSection === 'result'}
+          onToggle={() => setOpenSection('result')}
+        >
+          <div className="space-y-2.5">
             <SummaryRow
               label="Custo dos ingredientes"
               value={formatCurrency(pricing.ingredientCost)}
@@ -499,7 +558,7 @@ const RecipeDetailPage = () => {
               Custos. Confira se ele cobre os custos que deseja incluir.
             </p>
           </div>
-        </section>
+        </CollapsibleSection>
       </div>
 
       {/* Barra de resumo fixa */}

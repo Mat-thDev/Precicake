@@ -5,6 +5,8 @@ export { default as Input } from './ui/Input';
 export { default as NumericInput } from './ui/NumericInput';
 export { default as Field } from './ui/Field';
 export { ToastHost } from './ui/Toast';
+export { default as Collapse } from './ui/Collapse';
+export { default as CollapsibleSection } from './ui/CollapsibleSection';
 
 // Comuns
 export { BottomBar } from './common/BottomBar';
