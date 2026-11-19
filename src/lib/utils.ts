@@ -6,6 +6,15 @@ export function formatCurrency(value: number): string {
   }).format(value);
 }
 
+/** Normaliza texto para busca: lowercase + sem acentos ("Chocólate" → "chocolate") */
+export function normalizeSearch(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
 /** Converte texto de input numérico aceitando vírgula decimal pt-BR ("3,5" → 3.5) */
 export function parseDecimal(text: string): number {
   const normalized = text.includes(',') ? text.replace(/\./g, '').replace(',', '.') : text;
