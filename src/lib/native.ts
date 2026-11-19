@@ -8,9 +8,18 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 export const initNative = async (): Promise<void> => {
   if (!Capacitor.isNativePlatform()) return;
 
+  await applyStatusBarTheme('default');
+};
+
+/**
+ * Ícones da status bar conforme o tema:
+ * fundo claro → ícones escuros (Style.Dark); fundo escuro → claros (Style.Light).
+ */
+export const applyStatusBarTheme = async (theme: App.Theme): Promise<void> => {
+  if (!Capacitor.isNativePlatform()) return;
+
   try {
-    // Ícones escuros — a barra fica sobre o fundo branco-gelo (navbar/onda)
-    await StatusBar.setStyle({ style: Style.Dark });
+    await StatusBar.setStyle({ style: theme === 'chocolate' ? Style.Light : Style.Dark });
   } catch {
     // Plataforma sem suporte ao plugin — ignora
   }

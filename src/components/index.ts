@@ -10,6 +10,7 @@ export { default as CollapsibleSection } from './ui/CollapsibleSection';
 
 // Comuns
 export { BottomBar } from './common/BottomBar';
+export { ThemeSync } from './common/ThemeSync';
 export { default as Logo } from './common/Logo';
 export { default as NotFound } from './common/NotFound';
 export { default as SkeletonPage } from './common/SkeletonPage';

@@ -1,10 +1,11 @@
 import clsx from 'clsx';
-import { BookOpen, ChevronRight, Wheat } from 'lucide-react';
+import { BookOpen, ChevronRight, Moon, Sun, Wheat } from 'lucide-react';
 import { Button } from '../../components';
 import useRouter from '../../hooks/useRouter';
 import useProfile from '../../hooks/useProfile';
 import useRecipes from '../../hooks/useRecipes';
 import useCatalog from '../../hooks/useCatalog';
+import useTheme from '../../hooks/useTheme';
 import { calculatePricing } from '../../lib/pricing';
 import { formatCurrency } from '../../lib/utils';
 
@@ -13,6 +14,7 @@ const Home = () => {
   const { user } = useProfile();
   const { recipes } = useRecipes();
   const { ingredients: catalog } = useCatalog();
+  const { theme, toggleTheme } = useTheme();
 
   const recent = recipes.slice(0, 3);
   const averageSale =
@@ -30,9 +32,20 @@ const Home = () => {
   return (
     <div className="page-scroll h-full w-full space-y-4 px-4 py-4">
       {/* Saudação */}
-      <div>
-        <h1 className="text-lg font-bold">{user.username ? `Olá, ${user.username}!` : 'Olá!'}</h1>
-        <p className="text-xs text-base-content/60">Gerencie suas receitas e precificação</p>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-lg font-bold">{user.username ? `Olá, ${user.username}!` : 'Olá!'}</h1>
+          <p className="text-xs text-base-content/60">Gerencie suas receitas e precificação</p>
+        </div>
+
+        <button
+          type="button"
+          className="btn btn-ghost btn-square btn-sm shrink-0"
+          aria-label={theme === 'chocolate' ? 'Usar tema claro' : 'Usar tema escuro'}
+          onClick={toggleTheme}
+        >
+          {theme === 'chocolate' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </button>
       </div>
 
       {/* Estatísticas */}

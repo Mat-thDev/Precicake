@@ -4,6 +4,7 @@
 
 /* Temas */
 @import './themes/default.theme.css';
+@import './themes/chocolate.theme.css';
 
 /* Estilos globais */
 :root {
