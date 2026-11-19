@@ -1,5 +1,36 @@
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
 import { calculatePricing, ingredientCost } from './pricing';
-import { formatCurrency } from './utils';
+import { copyText, formatCurrency } from './utils';
+
+export type ShareResult = 'shared' | 'copied' | 'cancelled' | 'error';
+
+/**
+ * Compartilha a receita: share sheet nativo no Android.
+ * Em web (ou plugin indisponível) cai para a área de transferência.
+ */
+export async function shareRecipe(recipe: Recipe.Item): Promise<ShareResult> {
+  const text = recipeShareText(recipe);
+
+  if (Capacitor.isNativePlatform()) {
+    try {
+      await Share.share({
+        title: recipe.name.trim() || 'Receita sem nome',
+        text,
+        dialogTitle: 'Compartilhar receita',
+      });
+      return 'shared';
+    } catch (error) {
+      // Usuário fechou o sheet — sem feedback
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.toLowerCase().includes('cancel')) return 'cancelled';
+      // Plugin indisponível → tenta copiar
+    }
+  }
+
+  const ok = await copyText(text);
+  return ok ? 'copied' : 'error';
+}
 
 /**
  * Texto para compartilhar a receita + resumo de venda (área de transferência).

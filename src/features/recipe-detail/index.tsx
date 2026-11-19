@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { ArrowLeft, ChevronDown, Copy, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Copy, Plus, Share2, Trash2 } from 'lucide-react';
 import {
   Button,
   Collapse,
@@ -15,7 +15,7 @@ import useRecipes from '../../hooks/useRecipes';
 import useCatalog from '../../hooks/useCatalog';
 import { showToast } from '../../hooks/useToast';
 import { calculatePricing, ingredientCost } from '../../lib/pricing';
-import { recipeShareText } from '../../lib/share';
+import { recipeShareText, shareRecipe } from '../../lib/share';
 import { copyText, formatCurrency, uuid } from '../../lib/utils';
 import SummaryBar from './SummaryBar';
 
@@ -147,6 +147,14 @@ const RecipeDetailPage = () => {
     );
   };
 
+  const handleShare = () => {
+    void shareRecipe(recipe).then((result) => {
+      if (result === 'shared') showToast('Receita compartilhada');
+      else if (result === 'copied') showToast('Receita copiada');
+      else if (result === 'error') showToast('Não foi possível compartilhar', 'error');
+    });
+  };
+
   return (
     <div className="flex h-full w-full flex-col">
       <div className="page-scroll min-h-0 flex-1 space-y-4 px-4 py-4">
@@ -171,6 +179,15 @@ const RecipeDetailPage = () => {
                 aria-label="Copiar receita"
               >
                 <Copy className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="btn-square"
+                onClick={handleShare}
+                aria-label="Compartilhar receita"
+              >
+                <Share2 className="h-5 w-5" />
               </Button>
               <Button
                 variant="ghost"
